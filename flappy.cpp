@@ -2,17 +2,27 @@
 #include "iostream"
 #include <SFML/Graphics.hpp>
 
+
+sf::Texture ground;
+sf::Texture upPipe;
+sf::Image pipeImage2;
+sf::Texture nizPipe;
+
+
+sf::Clock pipeGenerating;
+sf::Font font;
+
 /**
  * Class BirdFlappy - отвечает за саму птицу.
+ * currentFrame - частота процессора процессора.
+ *
  */
-
+float Y;
 class BirdFlappy {
 private:
-    sf::Texture texture;
     float Y;
     float vel;
     float currentFrame{};
-    sf::Clock *animationClock;
     std::vector<sf::Texture > frames;
 
 public:
@@ -22,18 +32,17 @@ public:
      */
 
     BirdFlappy() {
-
-        std::vector<int> aClock;
+        auto i = 0;
         for (const auto &path: {
                      "fordraw/bird/1.png",
-                     "fordraw/bird/2.png"}) {
-            auto frame =  sf::Texture();
-            frame.loadFromFile(path);
-            frames.push_back(frame);
+                     "fordraw/bird/2.png"
+             }){
+            frames.emplace_back();
+            frames[i].loadFromFile(path);
         }
-        texture = frames[0];
         Y = 500;
         vel = 0;
+
     }
 
 
@@ -43,6 +52,7 @@ public:
      */
 
     sf::FloatRect getRect() {
+        sf::Texture &texture = frames[(int) currentFrame];
         auto size = texture.getSize();
         return {
                 50, Y, (float) size.x, (float) size.y};
@@ -58,23 +68,26 @@ public:
      * отрисовка наклона птицы.(наклона квадрата птицы)
      */
     void draw(sf::RenderWindow &window) {
+        sf::Texture &texture = frames[(int) currentFrame];
         sf::Sprite birdSprite(texture);
         birdSprite.setRotation(10 * (vel / 300));
         birdSprite.setPosition(70, Y);
 
         window.draw(birdSprite);
+
     }
     /**
      *Отрисовка частоты картинки.
+     * отрисовка обновления частоты процессора
      *
      */
 
     void update() {
         currentFrame += proc * 10;
-        if (currentFrame > frames.size()) {
+        if (currentFrame >= frames.size()) {
             currentFrame -= frames.size();
         }
-        texture = frames[(int) currentFrame];
+        sf::Texture &texture = frames[(int) currentFrame];
 
         if (gamerun) {
             vel += proc * 900;
@@ -91,9 +104,9 @@ public:
         }
     }
 };
-BirdFlappy bird;
-sf::Texture upPipe;
-sf::Texture nizPipe;
+auto bird = BirdFlappy();
+
+
 /**
  *
  * @param s принимает прошлый счет.
@@ -175,9 +188,8 @@ window->draw(lowerSprite);
 };
 
 std::vector<Pipe> pipes;
-sf::Texture ground;
 sf::Clock pipeGeneratingClock;
-sf::Font font;
+
 
 /**
  * Функция настройки параметров.
@@ -198,7 +210,7 @@ void setup(sf::RenderWindow &window) {
     font.loadFromFile("fonts/font.ttf");
 
 
-    bird = BirdFlappy();
+
 
     backgroundTexture = sf::Texture();
     backgroundTexture.loadFromFile("fordraw/back.png");
@@ -208,9 +220,10 @@ void setup(sf::RenderWindow &window) {
 
     sf::Image pipeImage;
     pipeImage.loadFromFile("fordraw/pipe.png");
+    pipeImage2.loadFromFile("fordraw/pipe.png");
     upPipe.loadFromImage(pipeImage);
-    pipeImage.flipVertically();
-    nizPipe.loadFromImage(pipeImage);
+    pipeImage2.flipVertically();
+    nizPipe.loadFromImage(pipeImage2);
 
     pipes.emplace_back(window);
 }
@@ -302,7 +315,6 @@ void drawing(sf::RenderWindow &window) {
 
     window.draw(scoreText);
 }
-
 
 int Play() {
     auto window = sf::RenderWindow(sf::VideoMode(500, 700), "Flappy");
