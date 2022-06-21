@@ -13,7 +13,10 @@ sf::Clock pipeGenerating;
 sf::Font font;
 
 /**
- * Class BirdFlappy - отвечает за саму птицу.
+ * Class BirdFlappy - отвечает з
+ *
+ *
+ * а саму птицу.
  * currentFrame - частота процессора процессора.
  *
  */
@@ -84,6 +87,7 @@ public:
 
     void update() {
         currentFrame += proc * 10;
+        currentFrame = currentFrame % frames.size();
         if (currentFrame >= frames.size()) {
             currentFrame -= frames.size();
         }
@@ -291,7 +295,7 @@ void drawing(sf::RenderWindow &window) {
     window.draw(sf::Sprite(backgroundTexture));
 
     for (const auto &pipe: pipes) {
-        pipe.draw((sf::RenderWindow &) pipe);
+        pipe.draw(window);
     }
     sf::Sprite groundSprite(ground);
     if (not(not gamerun or gameOvered)) {
