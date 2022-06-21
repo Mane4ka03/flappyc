@@ -6,6 +6,7 @@
 sf::Texture ground;
 sf::Texture upPipe;
 sf::Image pipeImage2;
+sf::Image pipeImage;
 sf::Texture nizPipe;
 
 
