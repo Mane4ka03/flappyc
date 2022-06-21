@@ -1,145 +1,135 @@
-#include <SFML/Graphics.hpp>
+#include "files.h"
 #include "iostream"
+#include <SFML/Graphics.hpp>
 
+/**
+ * Class BirdFlappy - отвечает за саму птицу.
+ */
 
-bool gamerun,gameOvered;
-int score;
-sf::RenderWindow *window;
-float proc;
-float setground;
-sf::Clock* aClok;
-sf::Texture *backgroundTexture;
-
-class BirdFlappy{
+class BirdFlappy {
 private:
-    sf::Texture*texture;
+    sf::Texture *texture;
     float Y;
     float vel;
     float currentFrame{};
-    sf::Clock* animationClock;
-    std::vector<sf::Texture*> frames;
+    sf::Clock *animationClock;
+    std::vector<sf::Texture > frames;
+
 public:
     /**
      * Анимация птицы.
      * Начальное положение птицы.
      */
 
-    BirdFlappy(){
-        aClok = new sf::Clock;
-        for (const auto& path :{
+    BirdFlappy() {
+
+        std::vector<int> aClock;
+        for (const auto &path: {
                      "fordraw/bird/1.png",
-                     "fordraw/bird/2.png"
-             }){
-            auto frame = new sf::Texture();
-            frame ->loadFromFile(path);
+                     "fordraw/bird/2.png"}) {
+            auto frame =  sf::Texture();
+            frame.loadFromFile(path);
             frames.push_back(frame);
         }
-        texture = frames[0];
+        texture = &frames[0];
         Y = 500;
-        vel =0;
+        vel = 0;
     }
 
-    ~BirdFlappy(){
-        for (const auto& ptr : frames){
-            delete ptr;
-        }
-        delete aClok;
-    }
+
     /**
      * Расстояние, от трубы при столкновении с птицей.
      * @return - прошла ли птица трубу
      */
 
-    sf::FloatRect getRect(){
+    sf::FloatRect getRect() {
         auto size = texture->getSize();
         return {
-                50,Y,(float)size.x,(float)size.y
-        };
+                50, Y, (float) size.x, (float) size.y};
     }
     /**
      * Гравитация, с которой птица летит.
      */
-    void flap(){
+    void flap() {
         if (not gamerun or gameOvered) return;
         vel = -255;
     }
     /**
      * отрисовка наклона птицы.(наклона квадрата птицы)
      */
-    void draw(){
+    void draw(sf::RenderWindow &window) {
         sf::Sprite birdSprite(*texture);
-        birdSprite.setRotation(10*(vel / 300));
-        birdSprite.setPosition(70,Y);
+        birdSprite.setRotation(10 * (vel / 300));
+        birdSprite.setPosition(70, Y);
 
-        window->draw(birdSprite);
-
+        window.draw(birdSprite);
     }
     /**
      *Отрисовка частоты картинки.
      *
      */
 
-    void update(){
-        currentFrame +=proc * 10;
-        if (currentFrame > frames.size()){
+    void update() {
+        currentFrame += proc * 10;
+        if (currentFrame > frames.size()) {
             currentFrame -= frames.size();
         }
-        texture = frames[(int)currentFrame];
+        texture = &frames[(int) currentFrame];
 
         if (gamerun) {
             vel += proc * 900;
             Y += vel * proc;
 
-            if (Y<0 or Y+texture->getSize().y > backgroundTexture->getSize().y){
-                gameOvered=true;
+            if (Y < 0 or Y + texture->getSize().y > backgroundTexture.getSize().y) {
+                gameOvered = true;
             }
 
-            if (Y < 0 or Y + texture->getSize().y > backgroundTexture->getSize().y) {
-                Y= (float)backgroundTexture->getSize().y + texture->getSize().y;
+            if (Y < 0 or Y + texture->getSize().y > backgroundTexture.getSize().y) {
+                Y = (float) backgroundTexture.getSize().y + texture->getSize().y;
                 vel = 0;
             }
         }
-
     }
 };
-BirdFlappy *bird;
-sf::Texture* upPipe;
-sf::Texture* nizPipe;
+BirdFlappy bird;
+sf::Texture upPipe;
+sf::Texture nizPipe;
 /**
  *
  * @param s принимает прошлый счет.
  * @return  возвращает обновленный счет.
  */
-int Upscore(int s){
+int Upscore(int s) {
     s++;
     return s;
 }
 
-class Pipe{
+
+
+class Pipe {
 private:
     float x;
     float y;
     bool scored;
+
 public:
-    Pipe(){
-        x = (float)(window -> getSize().x + upPipe -> getSize().x);
-        y = 100.0f +(float)(rand()%5 - 2)*50;
+    Pipe(sf::RenderWindow &window) {
+        x = (float) (window.getSize().x + upPipe.getSize().x);
+        y = 100.0f + (float) (rand() % 5 - 2) * 50;
         scored = false;
     }
     sf::FloatRect getUpperRect() const {
-        auto size = upPipe->getSize();
+        auto size = upPipe.getSize();
         return {
                 x, y + 340,
-                (float)size.x, (float)size.y
-        };
+                (float) size.x, (float) size.y};
     }
 
     sf::FloatRect getLowerRect() const {
-        auto size = upPipe->getSize();
+        auto size = upPipe.getSize();
         return {
                 x, y - 340,
-                (float)size.x, (float)size.y
-        };
+                (float) size.x, (float) size.y};
     }
 
     /**
@@ -154,15 +144,15 @@ lowerSprite.setPosition(x, y-340);
 window->draw(upperSprite);
 window->draw(lowerSprite);
  */
-    void draw()
+    void draw(sf::RenderWindow &window)
             const {
-        sf::Sprite upperSprite(*upPipe);
-        upperSprite.setPosition(x, y+300);
-        sf::Sprite lowerSprite(*nizPipe);
-        lowerSprite.setPosition(x, y-300);
+        sf::Sprite upperSprite(upPipe);
+        upperSprite.setPosition(x, y + 300);
+        sf::Sprite lowerSprite(nizPipe);
+        lowerSprite.setPosition(x, y - 300);
 
-        window->draw(upperSprite);
-        window->draw(lowerSprite);
+        window.draw(upperSprite);
+        window.draw(lowerSprite);
     }
     /**
          * if (birdRect.intersects(getUpperRect()) or birdRect.intersects(getLowerRect())) - если птица упала - игра завершается.
@@ -170,117 +160,100 @@ window->draw(lowerSprite);
            scored = true;
            score++;  -- обновление счета.
          */
-    void update(){
+    void update() {
         if (not gamerun or gameOvered) return;
-        x -= 100*proc;
-        auto birdRect= bird->getRect();
+        x -= 100 * proc;
+        auto birdRect = bird.getRect();
         if (birdRect.intersects(getUpperRect()) or birdRect.intersects(getLowerRect())) {
-            gameOvered=true;
+            gameOvered = true;
         }
-        if (x + upPipe->getSize().x < birdRect.left and not scored){
+        if (x + upPipe.getSize().x < birdRect.left and not scored) {
             scored = true;
-            score=Upscore(score);
+            score = Upscore(score);
         }
-
-
     }
-
 };
 
-std::vector<Pipe*> pipes;
-sf::Texture* ground;
-sf::Clock* pipeGeneratingClock;
-sf::Font* font;
+std::vector<Pipe> pipes;
+sf::Texture ground;
+sf::Clock pipeGeneratingClock;
+sf::Font font;
 
 /**
  * Функция настройки параметров.
  *
  * Загрузка всех необходимых параметров:
- * font = new sf::Font(); - шрифт
- * backgroundTexture = new sf::Texture(); - загрузка заднего фона.
+ * font =  sf::Font(); - шрифт
+ * backgroundTexture =  sf::Texture(); - загрузка заднего фона.
  * ground->loadFromFile("textures/ground.png"); - загрузка нижней части фона.
  * pipeImage.loadFromFile("textures/pipe.png"); - загрузка трубы.
  */
 
-void setup(){
-    srand((unsigned int) time(nullptr) );
-    pipeGeneratingClock = new sf::Clock;
+void setup(sf::RenderWindow &window) {
+    srand((unsigned int) time(nullptr));
+    pipeGeneratingClock = sf::Clock();
 
-    font = new sf::Font();
-    font ->loadFromFile("fonts/font.ttf");
 
-    window = new sf::RenderWindow(sf::VideoMode(500, 700), "Flappy");
-    window->setPosition({640,120});
+    font = sf::Font();
+    font.loadFromFile("fonts/font.ttf");
 
-    bird = new BirdFlappy();
 
-    backgroundTexture = new sf::Texture();
-    backgroundTexture->loadFromFile("fordraw/back.png");
+    bird = BirdFlappy();
 
-    ground = new sf::Texture;
-    ground->loadFromFile("fordraw/ground.png");
+    backgroundTexture = sf::Texture();
+    backgroundTexture.loadFromFile("fordraw/back.png");
 
-    upPipe = new sf::Texture;
-    nizPipe = new sf::Texture;
+
+    ground.loadFromFile("fordraw/ground.png");
 
     sf::Image pipeImage;
     pipeImage.loadFromFile("fordraw/pipe.png");
-    upPipe->loadFromImage(pipeImage);
+    upPipe.loadFromImage(pipeImage);
     pipeImage.flipVertically();
-    nizPipe->loadFromImage(pipeImage);
+    nizPipe.loadFromImage(pipeImage);
 
-    pipes.push_back(new Pipe());
+    pipes.push_back(Pipe(window));
 }
-
-
 
 
 /**
  * Функция направлена на обработку нажатий пользователем на интерфейс
  * MouseButtonPressed -- если пользователь нажал на кнопку мыши :
  * -pipeGeneratingClock->restart();
-   -pipes.push_back(new Pipe());
+   -pipes.push_back( Pipe());
    Продолжение генерации труб.
 
 bird->flap(); - функция анимации крыльев птицы.
         * Closed -- При нажатии на кнопку закрытия , окно закрывается.
                 * window->close();
 */
-void whatEvent(sf::Event& event){
-    if (event.type == sf::Event::MouseButtonPressed){
-        if (not gamerun){
+void whatEvent(sf::Event &event) {
+    if (event.type == sf::Event::MouseButtonPressed) {
+        if (not gamerun) {
             gamerun = true;
-            pipeGeneratingClock->restart();
+            pipeGeneratingClock.restart();
         }
-        bird->flap();
-
+        bird.flap();
     }
-    if (event.type == sf::Event::Closed){
-        window->close();
-    }
-
 }
 /**
  * Функция направлена на изменение пространства, где летит птица.
  * pipe->update -- создание новых труб.
  * Так же функция удаляет уже пролетевшие птицей трубы.
  */
-void update(){
-    bird->update();
-    for (const auto& pipe : pipes) {
-        pipe->update();
+void update(sf::RenderWindow &window) {
+    bird.update();
+    for (auto &pipe: pipes) {
+        pipe.update();
     }
-    if(gamerun and not gameOvered){
-        if (pipeGeneratingClock->getElapsedTime().asSeconds() > 3.5){
-            pipeGeneratingClock->restart();
-            pipes.push_back(new Pipe());
-            if (pipes.size()>4){
-                delete pipes[0];
+    if (gamerun and not gameOvered) {
+        if (pipeGeneratingClock.getElapsedTime().asSeconds() > 3.5) {
+            pipeGeneratingClock.restart();
+            pipes.push_back( Pipe(window));
+            if (pipes.size() > 4) {
                 pipes.erase(pipes.begin());
             }
-
         }
-
     }
 }
 
@@ -288,13 +261,6 @@ void update(){
  * Функция работает при выключении.
  */
 
-void destroy(){
-    delete window;
-    delete bird;
-    delete backgroundTexture;
-    delete pipeGeneratingClock;
-    delete font;
-}
 
 /**
  * Функция отрисовки.
@@ -306,67 +272,61 @@ void destroy(){
  *
  * window->draw(scoreText); - отрисовка счета.
  */
-void drawing(){
-    window->clear();
+void drawing(sf::RenderWindow &window) {
+    window.clear();
 
-    window->draw(sf::Sprite(*backgroundTexture));
+    window.draw(sf::Sprite(backgroundTexture));
 
-    for (const auto& pipe : pipes) {
-        pipe->draw();
+    for (const auto &pipe: pipes) {
+        pipe.draw((sf::RenderWindow &) pipe);
     }
-    sf::Sprite groundSprite(*ground);
+    sf::Sprite groundSprite(ground);
     if (not(not gamerun or gameOvered)) {
         setground -= proc * 100;
-        if(setground <= -20){
+        if (setground <= -20) {
             setground += 20;
-
         }
-
     }
-    groundSprite.setPosition(setground,backgroundTexture->getSize().y);
-    window->draw(groundSprite);
-    sf::RectangleShape lowerRectangle({
-            (float) window->getSize().x,
-            (float) window->getSize().y - backgroundTexture->getSize().y - ground->getSize().y
-    });
-    lowerRectangle.setPosition(0, (float)backgroundTexture->getSize().y + ground->getSize().y);
+    groundSprite.setPosition(setground, backgroundTexture.getSize().y);
+    window.draw(groundSprite);
+    sf::RectangleShape lowerRectangle({(float) window.getSize().x,
+                                       (float) window.getSize().y - backgroundTexture.getSize().y - ground.getSize().y});
+    lowerRectangle.setPosition(0, (float) backgroundTexture.getSize().y + ground.getSize().y);
     lowerRectangle.setFillColor({245, 228, 138});
-    window->draw(lowerRectangle);
+    window.draw(lowerRectangle);
 
 
-    bird->draw();
-    sf::Text scoreText("SCORE:"+ std::to_string(score), *font);
-    scoreText.setPosition(window->getSize().x/2-scoreText.getLocalBounds().width/2,5);
+    bird.draw(window);
+    sf::Text scoreText("SCORE:" + std::to_string(score), font);
+    scoreText.setPosition(window.getSize().x / 2 - scoreText.getLocalBounds().width / 2, 5);
 
-    window->draw(scoreText);
-
-
+    window.draw(scoreText);
 }
 
 
+int Play() {
+    auto window = sf::RenderWindow(sf::VideoMode(500, 700), "Flappy");
+    window.setPosition({640, 120});
+    setup(window);
 
-int Play(){
-    setup();
 
     sf::Clock procClock;
 
-    while (window -> isOpen()){
+    while (window.isOpen()) {
         sf::Event event{};
 
-        while (window ->pollEvent(event)){
+        while (window.pollEvent(event)) {
             whatEvent(event);
         }
-        proc=procClock.getElapsedTime().asMicroseconds()/1000.0f/1000.0f; //
+        proc = procClock.getElapsedTime().asMicroseconds() / 1000.0f / 1000.0f;//
         procClock.restart();
 
-        update();
-        drawing();
+        update(window);
+        drawing(window);
 
-        window->display();
+        window.display();
     }
 
-    destroy();
 
     return EXIT_SUCCESS;
 }
-
