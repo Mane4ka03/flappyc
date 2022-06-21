@@ -13,6 +13,7 @@ add_executable(cfgame main.cpp flappy.cpp)
 target_link_libraries(cfgame sfml-graphics)
 
 file(COPY ${CMAKE_CURRENT_SOURCE_DIR}/fordraw DESTINATION ${CMAKE_CURRENT_BINARY_DIR})
+
 file(COPY ${CMAKE_CURRENT_SOURCE_DIR}/fonts DESTINATION ${CMAKE_CURRENT_BINARY_DIR})
 
 
