@@ -87,7 +87,7 @@ public:
 
     void update() {
         currentFrame += proc * 10;
-        currentFrame = currentFrame % frames.size();
+        currentFrame = currentFrame / frames.size();
         if (currentFrame >= frames.size()) {
             currentFrame -= frames.size();
         }
