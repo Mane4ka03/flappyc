@@ -8,7 +8,7 @@
 
 class BirdFlappy {
 private:
-    sf::Texture *texture;
+    sf::Texture texture;
     float Y;
     float vel;
     float currentFrame{};
@@ -31,7 +31,7 @@ public:
             frame.loadFromFile(path);
             frames.push_back(frame);
         }
-        texture = &frames[0];
+        texture = frames[0];
         Y = 500;
         vel = 0;
     }
@@ -43,7 +43,7 @@ public:
      */
 
     sf::FloatRect getRect() {
-        auto size = texture->getSize();
+        auto size = texture.getSize();
         return {
                 50, Y, (float) size.x, (float) size.y};
     }
@@ -58,7 +58,7 @@ public:
      * отрисовка наклона птицы.(наклона квадрата птицы)
      */
     void draw(sf::RenderWindow &window) {
-        sf::Sprite birdSprite(*texture);
+        sf::Sprite birdSprite(texture);
         birdSprite.setRotation(10 * (vel / 300));
         birdSprite.setPosition(70, Y);
 
@@ -74,18 +74,18 @@ public:
         if (currentFrame > frames.size()) {
             currentFrame -= frames.size();
         }
-        texture = &frames[(int) currentFrame];
+        texture = frames[(int) currentFrame];
 
         if (gamerun) {
             vel += proc * 900;
             Y += vel * proc;
 
-            if (Y < 0 or Y + texture->getSize().y > backgroundTexture.getSize().y) {
+            if (Y < 0 or Y + texture.getSize().y > backgroundTexture.getSize().y) {
                 gameOvered = true;
             }
 
-            if (Y < 0 or Y + texture->getSize().y > backgroundTexture.getSize().y) {
-                Y = (float) backgroundTexture.getSize().y + texture->getSize().y;
+            if (Y < 0 or Y + texture.getSize().y > backgroundTexture.getSize().y) {
+                Y = (float) backgroundTexture.getSize().y + texture.getSize().y;
                 vel = 0;
             }
         }
@@ -212,7 +212,7 @@ void setup(sf::RenderWindow &window) {
     pipeImage.flipVertically();
     nizPipe.loadFromImage(pipeImage);
 
-    pipes.push_back(Pipe(window));
+    pipes.emplace_back(window);
 }
 
 
